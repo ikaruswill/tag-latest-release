@@ -47,6 +47,11 @@ fi
 [[ $REPO_URL == *.git ]] || REPO_URL+=.git
 [[ $UPSTREAM_URL == *.git ]] || UPSTREAM_URL+=.git
 
+# Set dependent constants
+USER=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\1/p')
+REPO=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
+REPO_PATH=$REPO_ROOT/$REPO
+
 configure_ssh () {
     mkdir -p $SSH_PATH
     cp $KNOWN_HOSTS_FILE $SSH_PATH/
@@ -123,8 +128,6 @@ echo "Fetch tags or clone repository..."
 fetch_tags_or_clone_repo
 
 echo "Fetching latest release..."
-USER=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\1/p')
-REPO=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
 LATEST_RELEASE=$(get_latest_release $USER/$REPO)
 echo "Latest release for $USER/$REPO: $LATEST_RELEASE"
 
