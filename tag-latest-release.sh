@@ -52,14 +52,14 @@ USER=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\1/p')
 REPO=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
 REPO_PATH=$REPO_ROOT/$REPO
 
-configure_ssh () {
+configure_ssh() {
     mkdir -p $SSH_PATH
     cp $KNOWN_HOSTS_FILE $SSH_PATH/
     cp $SSH_PRIVATE_KEY_FILE $SSH_PATH/id_rsa
     chmod 600 $SSH_PATH/id_rsa
 }
 
-check_repo_url () {
+check_repo_url() {
     local REPO_HTTPS_URL=$(echo $REPO_URL | sed -En 's#.*(https://[^[:space:]]*).*#\1#p')
     if [ -z "$REPO_HTTPS_URL" ]; then
         echo "Repo URL is using SSH"
@@ -88,7 +88,7 @@ check_repo_url () {
     fi
 }
 
-fetch_tags_or_clone_repo () {
+fetch_tags_or_clone_repo() {
     if [ -d $REPO_PATH ]; then
         echo "Local repo exists"
         echo "Fetching repository tags..."
@@ -106,15 +106,14 @@ get_latest_release() {
     sed -E 's/.*"([^"]+)".*/\1/'
 }
 
-push_tags () {
-    if [ -z "$TAGS" ]; then
-        echo "Origin up-to-date with upstream"
+check_and_push_tags() {
+    if ! git -C $REPO_PATH tag | grep -q $LATEST_RELEASE; then
+        echo "Tag does not currently exist"
+        echo "Pushing tag: $LATEST_RELEASE"
+        git -C $REPO_PATH tag $LATEST_RELEASE
+        git -C $REPO_PATH push origin $LATEST_RELEASE
     else
-        echo "Origin behind upstream"
-        for tag in $TAGS; do
-            echo "Pushing $tag..."
-            git -C $REPO_PATH push origin $tag
-        done
+        echo "Tag already exists. Skipping..."
     fi
 }
 
@@ -131,8 +130,7 @@ echo "Fetching latest release..."
 LATEST_RELEASE=$(get_latest_release $USER/$REPO)
 echo "Latest release for $USER/$REPO: $LATEST_RELEASE"
 
-echo "Pushing tag: $LATEST_RELEASE"
-git -C $REPO_PATH tag $LATEST_RELEASE
-git -C $REPO_PATH push origin $LATEST_RELEASE
+echo "Checking existing tags..."
+check_and_push_tags
 
 echo "Done"
