@@ -27,19 +27,19 @@ UPSTREAM_URL=${UPSTREAM_URL:-}
 REPO_ROOT='/repos'
 
 # Check environment variables
-if [ -z "$REPO_URL" ]; then
+if [[ -z "$REPO_URL" ]]; then
     echo 'Missing REPO_URL'
     exit 1
-elif [ -z "$UPSTREAM_URL" ]; then
+elif [[ -z "$UPSTREAM_URL" ]]; then
     echo 'Missing UPSTREAM_URL'
     exit 1
-elif [ -z $SSH_PRIVATE_KEY_FILE ]; then
+elif [[ -z $SSH_PRIVATE_KEY_FILE ]]; then
     echo 'Missing SSH_PRIVATE_KEY_FILE'
     exit 1
-elif ! [ -f "$SSH_PRIVATE_KEY_FILE" ]; then
+elif ! [[ -f "$SSH_PRIVATE_KEY_FILE" ]]; then
     echo "SSH key not found at: $SSH_PRIVATE_KEY_FILE"
     exit 1
-elif ! [ -f "$KNOWN_HOSTS_FILE" ]; then
+elif ! [[ -f "$KNOWN_HOSTS_FILE" ]]; then
     echo "known_hosts not found at: $KNOWN_HOSTS_FILE"
     echo "Using default known_hosts..."
     KNOWN_HOSTS_FILE='./known_hosts'
@@ -61,18 +61,18 @@ configure_ssh() {
 
 check_repo_url() {
     local REPO_HTTPS_URL=$(echo $REPO_URL | sed -En 's#.*(https://[^[:space:]]*).*#\1#p')
-    if [ -z "$REPO_HTTPS_URL" ]; then
+    if [[ -z "$REPO_HTTPS_URL" ]]; then
         echo "Repo URL is using SSH"
     else
         echo "WARNING: Repo URL is using HTTPS, attemping conversion to SSH..."
         local USER=$(echo $REPO_HTTPS_URL | sed -En 's#https://github.com/([^/]*)/(.*).git#\1#p')
-        if [ -z "$USER" ]; then
+        if [[ -z "$USER" ]]; then
             echo "-- ERROR:  Could not identify User."
             exit 1
         fi
 
         local REPO=$(echo $REPO_HTTPS_URL | sed -En 's#https://github.com/([^/]*)/(.*).git#\2#p')
-        if [ -z "$REPO" ]; then
+        if [[ -z "$REPO" ]]; then
             echo "-- ERROR:  Could not identify Repo."
             exit 1
         fi
