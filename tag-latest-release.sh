@@ -88,9 +88,28 @@ check_repo_url() {
     fi
 }
 
+check_if_pull_needed() {
+    local LOCAL=$(git -C $REPO_PATH rev-parse @)
+    local REMOTE=$(git -C $REPO_PATH rev-parse @{u})
+    local BASE=$(git merge-base @ @{u})
+    if [[ $LOCAL = $REMOTE ]]; then
+        echo "Up-to-date"
+        return 0
+    elif [[ $LOCAL = $BASE ]]; then
+        echo "New commits available"
+        return 1
+    fi
+}
+
 fetch_tags_or_clone_repo() {
-    if [ -d $REPO_PATH ]; then
+    if [[ -d $REPO_PATH ]]; then
         echo "Local repo exists"
+        check_if_pull_needed
+        local PULL_NEEDED=$?
+        if [[ $PULL_NEEDED -eq 1 ]]; then
+            echo "Pulling latest commit"
+            git -C $REPO_PATH pull
+        fi
         echo "Fetching repository tags..."
         git -C $REPO_PATH fetch --tags
     else 
