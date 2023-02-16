@@ -24,7 +24,7 @@ SSH_PATH="$HOME/.ssh"
 # Repository variables
 REPO_URL=${REPO_URL:-}
 UPSTREAM_URL=${UPSTREAM_URL:-}
-REPO_ROOT='/repos'
+APP_ROOT='/repos'
 
 # Check environment variables
 if [[ -z "$REPO_URL" ]]; then
@@ -48,9 +48,10 @@ fi
 [[ $UPSTREAM_URL == *.git ]] || UPSTREAM_URL+=.git
 
 # Set dependent constants
-USER=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\1/p')
-REPO=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
-REPO_PATH=$REPO_ROOT/$REPO
+UPSTREAM_USER=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\1/p')
+UPSTREAM_REPO_NAME=$(echo $UPSTREAM_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
+ORIGIN_REPO_NAME=$(echo $REPO_URL | sed -n 's/^.*github.com[:/]\(.*\)\/\(.*\).git/\2/p')
+REPO_PATH=$APP_ROOT/$ORIGIN_REPO_NAME
 
 configure_ssh() {
     mkdir -p $SSH_PATH
@@ -146,8 +147,8 @@ echo "Fetch tags or clone repository..."
 fetch_tags_or_clone_repo
 
 echo "Fetching latest release..."
-LATEST_RELEASE=$(get_latest_release $USER/$REPO)
-echo "Latest release for $USER/$REPO: $LATEST_RELEASE"
+LATEST_RELEASE=$(get_latest_release $UPSTREAM_USER/$UPSTREAM_REPO_NAME)
+echo "Latest release for $UPSTREAM_USER/$UPSTREAM_REPO_NAME: $LATEST_RELEASE"
 
 echo "Checking existing tags..."
 check_and_push_tags
