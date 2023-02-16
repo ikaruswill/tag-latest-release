@@ -17,8 +17,8 @@ ikaruswill/tag-latest-release
 
 ## Environment variables
 ```
-REPO_URL              : Docker image repository URL
-UPSTREAM_URL          : Upstream repository URL
+REPO_URL              : Docker image git repository URL
+UPSTREAM_URL          : Upstream git repository URL
 SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
 ```
 
